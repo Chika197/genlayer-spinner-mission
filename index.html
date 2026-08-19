@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GenLayer SpinnerMission</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #0b0f19;
+      color: #ffffff;
+      font-family: Arial, sans-serif;
+    }
+
+    .container {
+      width: min(520px, 90%);
+      padding: 32px;
+      border: 1px solid #263044;
+      border-radius: 18px;
+      background: #111827;
+      text-align: center;
+    }
+
+    h1 {
+      margin-top: 0;
+      font-size: 28px;
+    }
+
+    .spinner {
+      width: 72px;
+      height: 72px;
+      margin: 28px auto 20px;
+      border: 6px solid #263044;
+      border-top-color: #ffffff;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .status {
+      font-size: 20px;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+
+    .description {
+      color: #9ca3af;
+      line-height: 1.6;
+    }
+
+    .progress {
+      display: flex;
+      justify-content: space-between;
+      gap: 6px;
+      margin-top: 28px;
+    }
+
+    .step {
+      flex: 1;
+      padding: 10px 4px;
+      border-radius: 8px;
+      background: #1f2937;
+      color: #9ca3af;
+      font-size: 11px;
+    }
+
+    .step.active {
+      background: #374151;
+      color: #ffffff;
+    }
+
+    .step.done {
+      background: #263044;
+      color: #ffffff;
+    }
+
+    button {
+      margin-top: 28px;
+      padding: 12px 22px;
+      border: 0;
+      border-radius: 10px;
+      background: #ffffff;
+      color: #111827;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:hover {
+      opacity: 0.85;
+    }
+  </style>
+</head>
+
+<body>
+
+  <main class="container">
+
+    <h1>GenLayer SpinnerMission</h1>
+
+    <div class="spinner"></div>
+
+    <div id="status" class="status">
+      Pending
+    </div>
+
+    <div id="description" class="description">
+      Waiting for the GenLayer transaction to begin.
+    </div>
+
+    <div class="progress">
+
+      <div class="step active">
+        Pending
+      </div>
+
+      <div class="step">
+        Proposing
+      </div>
+
+      <div class="step">
+        Committing
+      </div>
+
+      <div class="step">
+        Revealing
+      </div>
+
+      <div class="step">
+        Accepted
+      </div>
+
+      <div class="step">
+        Finalized
+      </div>
+
+    </div>
+
+    <button id="simulate">
+      Simulate Consensus
+    </button>
+
+  </main>
+
+  <script>
+
+    const statuses = [
+      {
+        name: "Pending",
+        description:
+          "Waiting for the GenLayer transaction to begin."
+      },
+      {
+        name: "Proposing",
+        description:
+          "A validator is proposing the transaction."
+      },
+      {
+        name: "Committing",
+        description:
+          "Validators are committing their results."
+      },
+      {
+        name: "Revealing",
+        description:
+          "Validators are revealing their results."
+      },
+      {
+        name: "Accepted",
+        description:
+          "GenLayer consensus has accepted the transaction."
+      },
+      {
+        name: "Finalized",
+        description:
+          "The transaction has been finalized by GenLayer."
+      }
+    ];
+
+    const statusElement =
+      document.getElementById("status");
+
+    const descriptionElement =
+      document.getElementById("description");
+
+    const steps =
+      document.querySelectorAll(".step");
+
+    const simulateButton =
+      document.getElementById("simulate");
+
+    let current = 0;
+    let timer = null;
+
+    function renderStatus() {
+
+      statusElement.textContent =
+        statuses[current].name;
+
+      descriptionElement.textContent =
+        statuses[current].description;
+
+      steps.forEach((step, index) => {
+
+        step.classList.remove(
+          "active",
+          "done"
+        );
+
+        if (index < current) {
+          step.classList.add("done");
+        }
+
+        if (index === current) {
+          step.classList.add("active");
+        }
+
+      });
+
+      if (
+        statuses[current].name ===
+        "Finalized"
+      ) {
+        simulateButton.textContent =
+          "Restart";
+      } else {
+        simulateButton.textContent =
+          "Simulate Consensus";
+      }
+    }
+
+    function simulateConsensus() {
+
+      clearInterval(timer);
+
+      current = 0;
+      renderStatus();
+
+      timer = setInterval(() => {
+
+        if (
+          current <
+          statuses.length - 1
+        ) {
+
+          current++;
+          renderStatus();
+
+        } else {
+
+          clearInterval(timer);
+
+        }
+
+      }, 1200);
+    }
+
+    simulateButton.addEventListener(
+      "click",
+      simulateConsensus
+    );
+
+    renderStatus();
+
+  </script>
+
+</body>
+</html>
